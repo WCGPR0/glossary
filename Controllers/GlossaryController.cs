@@ -1,14 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using glossary.Services;
+using System.Linq;
+using glossary.Models;
 
 namespace glossary.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class GlossaryController : Controller
     {
+        private readonly GlossaryService _glossaryService; //< Instance of GlossaryService to performs CRUD operations
+        public GlossaryController(GlossaryService _glossaryService)
+        {
+            this._glossaryService = _glossaryService;
+        }
         /// <summary>
         /// Gets a list of all the terms stored in the Persistent Data Storage and returns them in alphabetical order
         /// </summary>
@@ -18,9 +25,11 @@ namespace glossary.Controllers
         [HttpGet("[action]")]
         public IEnumerable<String> GetTerms()
         {
-            //@todo   
-            return null;
-        }        
+            List<string> terms = _glossaryService.Get() //< Gets all the glosarries
+                                    .Select(_glossary => _glossary.Term) //< Selects only the term
+                                    .ToList(); //< Converts to a list
+            return terms;
+        }
         /// <summary>
         /// Gets the definition for a specific term
         /// </summary>
@@ -33,12 +42,15 @@ namespace glossary.Controllers
         [HttpGet("[action]")]
         public string GetDefinition(string term)
         {
-            //@todo
-            return "";
+            Glossary glossary = _glossaryService.Find(term);
+            if (glossary == null)
+                return String.Empty;
+            else
+                return glossary.Definition;
         }
 
         /// <summary>
-        /// Updates the definition for a specific term
+        /// Updates the definition for a specific term, or deletes the term if it's empty
         /// </summary>
         /// <param name="term">
         /// The term that is being updated
@@ -46,20 +58,39 @@ namespace glossary.Controllers
         /// <returns>
         /// A return code, 0 being success, and -1 being an error has occured
         /// </returns>
-        [HttpPost("[action]")]
-        public int UpdateDefinition(string term)
+        [HttpPut("{id:length(24)}")]
+        public int UpdateTerm(Glossary glossary)
         {
-            //@todo
-            return -1;
-        }        
+            if (glossary == null)
+                return -1;
+            string defintion = glossary.Definition;
+            if (String.IsNullOrEmpty(glossary.Definition))
+                return DeleteTerm(glossary);
+            else
+                _glossaryService.Update(glossary.Id, glossary);
+            return 0;
+        }
 
         /// <summary>
-        /// A Glossary Model representing an entity / entry, an associated term and definition
+        /// Deletes the term
         /// </summary>
-        public class Glossary
+        /// <param name="term">
+        /// The term that is being deleted
+        /// </param>
+        /// <returns>
+        /// A return code, 0 being success, and -1 being an error has occured
+        /// </returns>
+        [HttpDelete("{id:length(24")]
+        public int DeleteTerm(Glossary glossary)
         {
-            public string term { get; set; } //< The term, a single word or short phrase
-            public string definition { get; set; } //< A paragraph of text that defines the term
+            try {
+                _glossaryService.Remove(glossary);
+                return 0;
+            }
+            catch (Exception) {
+                // @todo Add more descriptive error message handling / logging
+                return -1;
+            }
         }
     }
 }

@@ -16,3 +16,6 @@ Editors in the system must be able to:
 • edit an existing term and definition
 • remove terms from the system
 • view an alphabetically-sorted list of the terms and definitions
+
+### Possible bugs / Todos
+-Data integrity/validation, and make sure that terms are constrained uniquely

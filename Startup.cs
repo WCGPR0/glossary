@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace glossary
 {
@@ -20,6 +20,23 @@ namespace glossary
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            /**  <!-- Start of Setting GlossaryDataBaseSettings Binding -->
+                <summary>
+                 Uses Microsoft.Extensions.Options, 
+                 registering appsettings.json's GlossaryDataBaseSettings in DI Container
+                 and registering GlossaryService with MongoClient in DI with singleton service lifetime
+                 </summary>
+             */
+            services.Configure<glossary.Models.GlossaryDatabaseSettings>(
+                Configuration.GetSection(nameof(glossary.Models.GlossaryDatabaseSettings)));
+
+            services.AddSingleton<glossary.Models.IGlossaryDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<glossary.Models.GlossaryDatabaseSettings>>().Value);
+
+            services.AddSingleton<glossary.Services.GlossaryService>();
+
+            /** <!-- End of Setting GlossaryDatabaseSettings Binding --> */
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // In production, the Angular files will be served from this directory

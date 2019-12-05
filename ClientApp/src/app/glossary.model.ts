@@ -1,4 +1,3 @@
 export class Glossary {
-    term: string;
-    definition: string;
+    constructor(public term: string, definition: string = "") { }
 }
