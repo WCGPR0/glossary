@@ -1,0 +1,16 @@
+<div class="grid-container">
+  <div class="content">
+    <h2><input type="string" AutoSizeInput [extraWidth]="5" class="term" (blur)="OnUpdateTerm()" [(ngModel)]="term"
+        (keydown.enter)="$event.target.blur();false"></h2>
+  </div>
+  <hr style="border-style:none" />
+  <div class="results" #results [scrollTop]="results.scrollHeight">
+    <div style="display: table; height: 100%; position: relative; overflow: hidden;">
+      <div style="#position: absolute; #top: 50%;display: table-cell; vertical-align: middle;">
+        <div style=" #position: relative; #top: -50%;">
+          <input type="string" AutoSizeInput [extraWidth]="100" class="term" (blur)="OnUpdateDefinition()"
+              [(ngModel)]="definition" (keydown.enter)="$event.target.blur();false" style="font-size: 1.2rem">
+        </div>
+      </div>
+    </div>
+  </div>
