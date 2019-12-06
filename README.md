@@ -22,3 +22,4 @@ Editors in the system must be able to:
 
 ### Possible bugs / Todos
 -Data integrity/validation, and make sure that terms are constrained uniquely
+-Fix base cases, like when DB empty / zero records

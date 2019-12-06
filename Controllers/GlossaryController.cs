@@ -8,7 +8,6 @@ using glossary.Models;
 namespace glossary.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     public class GlossaryController : Controller
     {
         private readonly GlossaryService _glossaryService; //< Instance of GlossaryService to performs CRUD operations
@@ -16,6 +15,7 @@ namespace glossary.Controllers
         {
             this._glossaryService = _glossaryService;
         }
+
         /// <summary>
         /// Gets a list of all the terms stored in the Persistent Data Storage and returns them in alphabetical order
         /// </summary>
@@ -55,20 +55,43 @@ namespace glossary.Controllers
         /// <param name="term">
         /// The term that is being updated
         /// </param>
+        /// <param name="definition">
+        /// The definition of the term
+        /// </param>
         /// <returns>
         /// A return code, 0 being success, and -1 being an error has occured
         /// </returns>
-        [HttpPut("{id:length(24)}")]
-        public int UpdateTerm(Glossary glossary)
+        [HttpPut("[action]")]
+        public int UpdateTerm(string term, string definition)
         {
-            if (glossary == null)
+            if (String.IsNullOrEmpty(term))
                 return -1;
-            string defintion = glossary.Definition;
-            if (String.IsNullOrEmpty(glossary.Definition))
-                return DeleteTerm(glossary);
-            else
-                _glossaryService.Update(glossary.Id, glossary);
-            return 0;
+            try {
+                Glossary glossary = _glossaryService.Find(term);
+                //Glossary does not exist, so create it
+                if (glossary == null) {
+                    glossary = new Glossary();
+                    glossary.Term = term;
+                    glossary.Definition = definition;
+                    _glossaryService.Create(glossary);
+                }
+                else {
+                    // Glossary exists, but empty definition, so delete
+                    if (String.IsNullOrEmpty(definition)) {
+                        return DeleteTerm(glossary);
+                    }
+                    // Gossary exists, and valid definition, so update
+                    else {
+                        glossary.Definition = definition;
+                        _glossaryService.Update(glossary.Id, glossary);
+                    }
+                }
+                return 0;
+            }
+            catch (Exception) {
+                // @todo Add more descriptive error message handling / logging
+                return -1;
+            }
         }
 
         /// <summary>
@@ -80,7 +103,7 @@ namespace glossary.Controllers
         /// <returns>
         /// A return code, 0 being success, and -1 being an error has occured
         /// </returns>
-        [HttpDelete("{id:length(24")]
+        [HttpDelete("{id:length(24)}")]
         public int DeleteTerm(Glossary glossary)
         {
             try {

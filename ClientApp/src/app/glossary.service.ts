@@ -12,7 +12,17 @@ export class GlossaryService {
   url = 'https://localhost:5001/api/Glossary';
   constructor(private http: HttpClient) { }
 
-  getTerms(): Observable<string[] > {
-    return this.http.get<string[]>(this.url + "/GetGlossary");
+  getTerms(): Observable<string[]> {
+    return this.http.get<string[]>(this.url + "/GetTerms");
   }
+  getDefinition(term: string): Observable<string> {
+    const params = new HttpParams().set('term', term);
+    return this.http.get<string>(this.url + "/GetDefinition", { params : params });
+  }
+  updateTerm(term: string, definition: string): Observable<number> {
+    const params = new HttpParams().set('term', term).set('definition', definition);
+    console.log(params);
+    return this.http.put<number>(this.url + "/UpdateTerm", {}, { params : params });
+  }
+
 }
