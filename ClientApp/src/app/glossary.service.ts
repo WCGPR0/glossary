@@ -17,7 +17,7 @@ export class GlossaryService {
   }
   getDefinition(term: string): Observable<string> {
     const params = new HttpParams().set('term', term);
-    return this.http.get<string>(this.url + "/GetDefinition", { params : params });
+    return this.http.get(this.url + "/GetDefinition", { params : params, responseType : 'text' });
   }
   updateTerm(term: string, definition: string): Observable<number> {
     const params = new HttpParams().set('term', term).set('definition', definition);

@@ -12,17 +12,16 @@ import {map, startWith} from 'rxjs/operators';
 })
 export class AppComponent implements OnInit {
   filteredTerms: Observable<string[]>;
-  terms: string[];
+  terms: string[] = [];
   myControl = new FormControl();
 
   term: string = "Term";
   definition: string = "Definition";
   title = 'Glossary';
-
   constructor(private glossaryService: GlossaryService) { }
 
   ngOnInit() {
-    this.glossaryService.getTerms().subscribe(terms => this.terms = terms);    
+    this.glossaryService.getTerms().subscribe((terms: string[]) => this.terms = terms); 
     this.filteredTerms = this.myControl.valueChanges.pipe(startWith(''), map(value => this._filter(value)));
   }
 

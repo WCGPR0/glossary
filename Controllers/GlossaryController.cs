@@ -23,12 +23,12 @@ namespace glossary.Controllers
         /// A list of terms in alphabetical order
         /// </returns>
         [HttpGet("[action]")]
-        public IEnumerable<String> GetTerms()
+        public IActionResult GetTerms()
         {
             List<string> terms = _glossaryService.Get() //< Gets all the glosarries
                                     .Select(_glossary => _glossary.Term) //< Selects only the term
                                     .ToList(); //< Converts to a list
-            return terms;
+            return Ok(terms);
         }
         /// <summary>
         /// Gets the definition for a specific term
@@ -40,13 +40,13 @@ namespace glossary.Controllers
         /// A string representation of the definition for the term, or an empty string if no found
         /// </returns>
         [HttpGet("[action]")]
-        public string GetDefinition(string term)
+        public IActionResult GetDefinition(string term)
         {
             Glossary glossary = _glossaryService.Find(term);
-            if (glossary == null)
-                return String.Empty;
-            else
-                return glossary.Definition;
+            string result = String.Empty;
+            if (glossary != null)
+                result = glossary.Definition;
+            return Ok( result );
         }
 
         /// <summary>

@@ -21,5 +21,7 @@ Editors in the system must be able to:
 * view an alphabetically-sorted list of the terms and definitions
 
 ### Possible bugs / Todos
--Data integrity/validation, and make sure that terms are constrained uniquely
--Fix base cases, like when DB empty / zero records
+* Data integrity/validation, and make sure that terms are constrained uniquely
+* Fix special cases, like when DB empty / zero records
+* Escaping special characters, like quotes, etc.
+* Selecting from the autocomplete seems to count as a focusout, so triggers events early
