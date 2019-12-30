@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<GlossaryCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <GlossarySurrogate>
+    <Term>TestComplete</Term>
+    <Definition>TestComplete</Definition>
+  </GlossarySurrogate>
+  <GlossarySurrogate>
+    <Term>TestDelete</Term>
+    <Definition>TestDeleteNo</Definition>
+  </GlossarySurrogate>
+  <GlossarySurrogate>
+    <Term>TestIsHere</Term>
+    <Definition>TestIsHereYes</Definition>
+  </GlossarySurrogate>
+  <GlossarySurrogate>
+    <Term>Testing</Term>
+    <Definition>Testing</Definition>
+  </GlossarySurrogate>
+</GlossaryCollection>

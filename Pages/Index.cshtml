@@ -1,0 +1,76 @@
+﻿@page
+@{
+    Layout = "_Layout.cshtml";
+    ViewData["Title"] = "GlossaryHome";
+}
+@model IndexModel
+<div id="root">
+    <div class="grid-container">
+        <div class="content">
+            <a href="/index.html">Edit</a>
+        </div>
+        <div class="results">
+            <a id="view" href="#">View</a>
+        </div>
+    </div>
+</div>
+<footer>There are @Model.glossaryList.Count Glossaries defined as of @DateTime.Now</footer>
+<style>
+    #root {
+        padding: 0;
+        border: 0;
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+        vertical-align: baseline;
+        color: #210b20;
+        font-size: 2.4rem;
+    }
+    .grid-container {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+    }
+    .grid-container .content {
+        grid-column: 1;
+        text-align: right;
+        margin: auto;
+    }
+    .grid-container .content a {
+        text-align: right;
+    }    
+    .grid-container .results {
+        grid-column: 2;
+        margin: auto 0;
+    }
+    a {
+        color: #210b20;
+        text-decoration: none;
+    }
+    html {
+        font-size: 14px;
+    }
+    footer{
+        position: fixed;
+        bottom: 0;
+        text-align: center;
+        width: 100%;
+    }
+</style>
+<script>
+    var glossaryHTML = `<table id="glossaryTable" class="display"><thead><tr><th>Term</th><th>Definition</th></thead><tbody>
+        @foreach (var glossary in Model.glossaryList)
+        {
+            <tr>
+                <td>@glossary.Term</td>
+                <td>@glossary.Definition</td>
+            </tr>
+        }
+        </tbody></table>`;
+    $('#view').click( function() {
+        $('#root').html(glossaryHTML);
+        $('#glossaryTable').DataTable();
+    });
+</script>
+@section scripts
+{
+    <!--<script src="~/dist/bundle.js" asp-append-version="true"></script>-->
+}

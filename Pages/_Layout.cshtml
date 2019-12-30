@@ -1,0 +1,27 @@
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostingEnv
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Glossary"
+    />
+    <title>GlossaryTEST</title>
+    <base href="~/" />
+    @if (hostingEnv.EnvironmentName != "Development")
+    {
+        <link href="~/dist/client.css" asp-append-version="true" rel="stylesheet">
+    }
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
+    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    @RenderBody()
+    @RenderSection("scripts")
+  </body>
+</html>
