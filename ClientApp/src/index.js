@@ -3,17 +3,20 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import Popup from 'reactjs-popup';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
 class GlossaryForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {terms: [], term: '', definition: 'Undefined'};
+        this.state = {terms: [], term: '', definition: 'Undefined', open: false};
         this.handleTermChange = this.handleTermChange.bind(this);
         this.handleDefinitionChange = this.handleDefinitionChange.bind(this);
         this.OnUpdateTerm = this.OnUpdateTerm.bind(this);
         this.OnUpdateDefinition = this.OnUpdateDefinition.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
         this.url = 'https://localhost:5001/api/Glossary';
     }
     componentDidMount() {
@@ -22,6 +25,12 @@ class GlossaryForm extends React.Component {
         .then((data) => {
             this.setState({ terms: data });
         }).catch(console.log);
+    }
+    openModal() {
+        this.setState({ open: true })
+    }
+    closeModal() {
+        this.setState({ open: false })
     }
     handleTermChange(event) {
         this.setState({term: event.target.value})
@@ -50,6 +59,9 @@ class GlossaryForm extends React.Component {
         })
         .then(res => res.text())
         .then((data) => {
+            if (data == 0) {
+                this.openModal();
+            }
             console.log(data); // @todo
         }).catch(console.log);        
     }
@@ -68,6 +80,13 @@ class GlossaryForm extends React.Component {
                         </div>
                     </div>
                 </div>
+            <Popup
+              open={this.state.open}
+              onClose={this.closeModal}
+              position="right center"
+              closeOnDocumentClick>
+              <span class="update-message"><center>Update Success</center> </span>
+            </Popup>                
             </div>
         );
     }

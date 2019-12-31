@@ -48,7 +48,6 @@ namespace glossary.Services
         }
         protected void Dispose(bool disposing)
         {
-            System.Diagnostics.Debugger.Launch();
             if (!_disposed)
             {
                 if (disposing)
