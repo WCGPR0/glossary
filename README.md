@@ -22,4 +22,4 @@ Editors in the system must be able to:
 
 ### Possible bugs / Todos
 * Multiple proccesses with same file path might block/lock the persistent data file storage
-* Abrupt crashes might lose data since is not transaction based
+* Abrupt crashes might lose data

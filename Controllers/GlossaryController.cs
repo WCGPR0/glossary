@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using glossary.Services;
 using System.Linq;
 using glossary.Models;
+using System.Threading.Tasks;
 
 namespace glossary.Controllers
 {
@@ -70,9 +71,11 @@ namespace glossary.Controllers
                 Glossary glossary = _glossaryService.Find(term);
                 //Glossary does not exist, so create it
                 if (glossary == null) {
+                    string maxID = _glossaryService.GetMaxID();
                     glossary = new Glossary();
                     glossary.Term = term;
                     glossary.Definition = definition;
+                    glossary.Id = String.IsNullOrEmpty(maxID) ? "0" : (int.Parse(maxID) + 1).ToString(); //@todo This assumes that ID will always be a integer / consider changing ID type to int or add error handling
                     _glossaryService.Create(glossary);
                 }
                 else {
@@ -86,6 +89,7 @@ namespace glossary.Controllers
                         _glossaryService.Update(glossary.Id, glossary);
                     }
                 }
+                Task.Run(() => _glossaryService.syncDBFile()); //< Hacky mimic to transaction based DB saving, ideally swap to a DB @todo
                 return 0;
             }
             catch (Exception ex) {
@@ -109,6 +113,7 @@ namespace glossary.Controllers
         {
             try {
                 _glossaryService.Remove(glossary);
+                Task.Run(() => _glossaryService.syncDBFile()); //< Hacky mimic to transaction based DB saving, ideally swap to a DB @todo
                 return 0;
             }
             catch (Exception) {

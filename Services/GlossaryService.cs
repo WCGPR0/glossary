@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace glossary.Services
 {
-    public class GlossaryService
+    public class GlossaryService : IDisposable
     {
         private readonly GlossaryCollection _glossary; //< Collection of all the Glossaries in-memory
         private readonly string DatabaseFilePath; //< Location of the database path file for loading/saving
@@ -18,13 +18,17 @@ namespace glossary.Services
             Constructor that loads the DatabaseFile from the DatabaseFilePath and serializes it into the GlossaryCollection.
             </summary>
         */
+        private bool _disposed = false; //< Boolean flag to prevent double disposing
         public GlossaryService(IGlossaryDatabaseSettings settings)
         {
             DatabaseFilePath = settings.DatabaseFilePath;
-           try {
+            try
+            {
                 XDocument doc = XDocument.Load(DatabaseFilePath);
                 _glossary = doc.Deserialize();
-            } catch (FileNotFoundException) {
+            }
+            catch (FileNotFoundException)
+            {
                 _glossary = new GlossaryCollection(new List<Glossary>());
             }
         }
@@ -35,24 +39,54 @@ namespace glossary.Services
             </summary>
         */
         ~GlossaryService() {
-            syncDBFile();
+            Dispose(false);
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected void Dispose(bool disposing)
+        {
+            System.Diagnostics.Debugger.Launch();
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    syncDBFile();
+                }
+                _disposed = true;
+            }
         }
         /** <summary>
             Helper function to save and write to the DatabaseFile at the DatabaseFilePath
             </summary>
         */
-        private int syncDBFile() {
-            try {
+        public int syncDBFile()
+        {
+            try
+            {
                 XDocument doc = new XDocument();
                 doc.Serialize(_glossary);
                 doc.Save(DatabaseFilePath);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.Message);
                 // @todo Add more descriptive error message handling / logging
                 return -1;
             }
             return 0;
         }
+
+        /** <summary>
+            Gets the max ID of all the Glossaries
+            </summary>
+            <returns>
+            A sorted list of Glossary in ascending order
+            </returns>    
+        */
+        public string GetMaxID() => _glossary.glossaryList.Max(x => x.Id);
 
         /** <summary>
             Gets all the Glossary and sorts it by the Term in ascending order
@@ -143,28 +177,29 @@ namespace glossary.Services
 
 
     [XmlRoot]
-    [XmlInclude(typeof(Glossary))]
-    public class GlossaryCollection {
-        [XmlIgnore]
-        public IEnumerable<Glossary> glossaryList;
-        [XmlElement, Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public List<Glossary> GlossarySurrogate { get { return glossaryList.ToList(); } set { glossaryList = value; } }        
-        public GlossaryCollection() {
+    public class GlossaryCollection
+    {
+        public List<Glossary> glossaryList; //< List of In-Memory Glossaries
+        public GlossaryCollection()
+        {
             glossaryList = new List<Glossary>(); //< Empty list of Glossaries
         }
-        public GlossaryCollection(IEnumerable<Glossary> glossaryList) {
+        public GlossaryCollection(List<Glossary> glossaryList)
+        {
             this.glossaryList = glossaryList;
         }
 
-        public FindGlossary Find(Func<Glossary, bool> filter) {
+        public FindGlossary Find(Func<Glossary, bool> filter)
+        {
             FindGlossary findGlossary = new FindGlossary(glossaryList);
             return findGlossary.Find(filter);
         }
         /** <summary>
             Sorts the list of Glossaries by a keySelector
             </summary>
-        */        
-        public IOrderedEnumerable<Glossary> SortBy(Func<Glossary, string> keySelector) {
+        */
+        public IOrderedEnumerable<Glossary> SortBy(Func<Glossary, string> keySelector)
+        {
             if (glossaryList == null)
                 throw new ArgumentNullException("glossaryList");
             if (keySelector == null)
@@ -174,8 +209,9 @@ namespace glossary.Services
         /** <summary>
             Gets the First Glossary or the default Glossary from its default constructor
             </summary>
-        */        
-        public Glossary FirstOrDefault() {
+        */
+        public Glossary FirstOrDefault()
+        {
             using (IEnumerator<Glossary> iterator = glossaryList.GetEnumerator())
             {
                 return iterator.MoveNext() ? iterator.Current : default(Glossary);
@@ -184,51 +220,59 @@ namespace glossary.Services
         /** <summary>
             Inserts a glossary at the end
             </summary>
-        */        
-        public void InsertOne(Glossary glossary) {
-            glossaryList = glossaryList.Append(glossary);
+        */
+        public void InsertOne(Glossary glossary)
+        {
+            glossaryList.Add(glossary);
         }
         /** <summary>
             Replaces the Glossary matching the predicate
             </summary>
-        */        
-        public GlossaryCollection ReplaceOne(Func<Glossary, bool> predicate, Glossary glossaryIn) {
+        */
+        public GlossaryCollection ReplaceOne(Func<Glossary, bool> predicate, Glossary glossaryIn)
+        {
             int index = IndexOf(predicate);
-            glossaryList = glossaryList.Replace(index, glossaryIn);
+            glossaryList = glossaryList.Replace(index, glossaryIn).ToList();
             return this;
         }
         /** <summary>
             Deletes the Glossary matching the predicate
             </summary>
-        */        
-        public GlossaryCollection DeleteOne(Func<Glossary, bool> predicate) {
+        */
+        public GlossaryCollection DeleteOne(Func<Glossary, bool> predicate)
+        {
             int index = IndexOf(predicate);
-            glossaryList = glossaryList.Where((x, i) => index != i);
+            glossaryList = glossaryList.Where((x, i) => index != i).ToList();
             return this;
         }
         /** <summary>
             Returns the location of the Glossary matching the predicate, 0 based
             </summary>
-        */        
-        private int IndexOf(Func<Glossary, bool> predicate) {
+        */
+        private int IndexOf(Func<Glossary, bool> predicate)
+        {
             int current = 0;
-            foreach (Glossary glossary in glossaryList) {
+            foreach (Glossary glossary in glossaryList)
+            {
                 if (predicate(glossary))
                     return current;
                 ++current;
             }
             return current;
-        } 
+        }
     }
 
     /** <summary>
         A subclass of the GlossaryCollection used as a Fluent Interface design to allow method changing 
         </summary>
     */
-   public class FindGlossary : GlossaryCollection {
-        public FindGlossary(IEnumerable<Glossary> glossaryList) : base(glossaryList) {
+    public class FindGlossary : GlossaryCollection
+    {
+        public FindGlossary(List<Glossary> glossaryList) : base(glossaryList)
+        {
         }
-        public new FindGlossary Find(Func<Glossary, bool> filter) {
+        public new FindGlossary Find(Func<Glossary, bool> filter)
+        {
             glossaryList = glossaryList.Where(filter ?? (s => true)).ToList();
             return this;
         }
